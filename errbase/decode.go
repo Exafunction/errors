@@ -18,14 +18,13 @@ import (
 	"context"
 
 	"github.com/cockroachdb/errors/errorspb"
-	"github.com/gogo/protobuf/proto"
-	"github.com/gogo/protobuf/types"
+	"google.golang.org/protobuf/proto"
 )
 
 // DecodeError decodes an error.
 //
 // Can only be called if the EncodedError is set (see IsSet()).
-func DecodeError(ctx context.Context, enc EncodedError) error {
+func DecodeError(ctx context.Context, enc *EncodedError) error {
 	if w := enc.GetWrapper(); w != nil {
 		return decodeWrapper(ctx, w)
 	}
@@ -36,14 +35,13 @@ func decodeLeaf(ctx context.Context, enc *errorspb.EncodedErrorLeaf) error {
 	// In case there is a detailed payload, decode it.
 	var payload proto.Message
 	if enc.Details.FullDetails != nil {
-		var d types.DynamicAny
-		err := types.UnmarshalAny(enc.Details.FullDetails, &d)
+		d, err := enc.Details.FullDetails.UnmarshalNew()
 		if err != nil {
 			// It's OK if we can't decode. We'll use
 			// the opaque type below.
 			warningFn(ctx, "error while unmarshalling error: %+v", err)
 		} else {
-			payload = d.Message
+			payload = d
 		}
 	}
 
@@ -60,7 +58,7 @@ func decodeLeaf(ctx context.Context, enc *errorspb.EncodedErrorLeaf) error {
 	} else if decoder, ok := multiCauseDecoders[typeKey]; ok {
 		causes := make([]error, len(enc.MultierrorCauses))
 		for i, e := range enc.MultierrorCauses {
-			causes[i] = DecodeError(ctx, *e)
+			causes[i] = DecodeError(ctx, e)
 		}
 		genErr := decoder(ctx, causes, enc.Message, enc.Details.ReportablePayload, payload)
 		if genErr != nil {
@@ -78,7 +76,7 @@ func decodeLeaf(ctx context.Context, enc *errorspb.EncodedErrorLeaf) error {
 	if len(enc.MultierrorCauses) > 0 {
 		causes := make([]error, len(enc.MultierrorCauses))
 		for i, e := range enc.MultierrorCauses {
-			causes[i] = DecodeError(ctx, *e)
+			causes[i] = DecodeError(ctx, e)
 		}
 		leaf := &opaqueLeafCauses{
 			causes: causes,
@@ -104,14 +102,13 @@ func decodeWrapper(ctx context.Context, enc *errorspb.EncodedWrapper) error {
 	// In case there is a detailed payload, decode it.
 	var payload proto.Message
 	if enc.Details.FullDetails != nil {
-		var d types.DynamicAny
-		err := types.UnmarshalAny(enc.Details.FullDetails, &d)
+		d, err := enc.Details.FullDetails.UnmarshalNew()
 		if err != nil {
 			// It's OK if we can't decode. We'll use
 			// the opaque type below.
 			warningFn(ctx, "error while unmarshalling wrapper error: %+v", err)
 		} else {
-			payload = d.Message
+			payload = d
 		}
 	}
 

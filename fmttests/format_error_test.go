@@ -28,12 +28,12 @@ import (
 	"github.com/cockroachdb/errors/errutil"
 	"github.com/cockroachdb/errors/testutils"
 	"github.com/cockroachdb/redact"
-	"github.com/gogo/protobuf/proto"
+	"google.golang.org/protobuf/proto"
 	pkgErr "github.com/pkg/errors"
 )
 
 func TestFormatViaRedact(t *testing.T) {
-	tt := testutils.T{t}
+	tt := testutils.T{T: t}
 
 	sm := string(redact.StartMarker())
 	em := string(redact.EndMarker())

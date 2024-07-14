@@ -23,7 +23,7 @@ import (
 	"syscall"
 
 	"github.com/cockroachdb/errors/errorspb"
-	"github.com/gogo/protobuf/proto"
+	"google.golang.org/protobuf/proto"
 )
 
 const thisArch = runtime.GOOS + ":" + runtime.GOARCH

@@ -21,7 +21,7 @@ import (
 	"os"
 
 	"github.com/cockroachdb/errors/errorspb"
-	"github.com/gogo/protobuf/proto"
+	"google.golang.org/protobuf/proto"
 	pkgErr "github.com/pkg/errors"
 )
 

@@ -10,7 +10,7 @@ import (
 )
 
 func TestUnwrap(t *testing.T) {
-	tt := testutils.T{t}
+	tt := testutils.T{T: t}
 
 	e := fmt.Errorf("foo %w %w", fmt.Errorf("bar"), fmt.Errorf("baz"))
 

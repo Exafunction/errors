@@ -19,7 +19,7 @@ import (
 	"fmt"
 
 	"github.com/cockroachdb/errors/errbase"
-	"github.com/gogo/protobuf/proto"
+	"google.golang.org/protobuf/proto"
 )
 
 type withSecondaryError struct {
@@ -62,7 +62,7 @@ func (e *withSecondaryError) Unwrap() error { return e.cause }
 func encodeWithSecondaryError(ctx context.Context, err error) (string, []string, proto.Message) {
 	e := err.(*withSecondaryError)
 	enc := errbase.EncodeError(ctx, e.secondaryError)
-	return "", nil, &enc
+	return "", nil, enc
 }
 
 func decodeWithSecondaryError(
@@ -78,7 +78,7 @@ func decodeWithSecondaryError(
 	}
 	return &withSecondaryError{
 		cause:          cause,
-		secondaryError: errbase.DecodeError(ctx, *enc),
+		secondaryError: errbase.DecodeError(ctx, enc),
 	}
 }
 
