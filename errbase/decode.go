@@ -34,7 +34,7 @@ func DecodeError(ctx context.Context, enc *EncodedError) error {
 func decodeLeaf(ctx context.Context, enc *errorspb.EncodedErrorLeaf) error {
 	// In case there is a detailed payload, decode it.
 	var payload proto.Message
-	if enc.Details.FullDetails != nil {
+	if enc.Details.GetFullDetails() != nil {
 		d, err := enc.Details.FullDetails.UnmarshalNew()
 		if err != nil {
 			// It's OK if we can't decode. We'll use
@@ -46,7 +46,7 @@ func decodeLeaf(ctx context.Context, enc *errorspb.EncodedErrorLeaf) error {
 	}
 
 	// Do we have a leaf decoder for this type?
-	typeKey := TypeKey(enc.Details.ErrorTypeMark.FamilyName)
+	typeKey := TypeKey(enc.Details.GetErrorTypeMark().GetFamilyName())
 	if decoder, ok := leafDecoders[typeKey]; ok {
 		// Yes, use it.
 		genErr := decoder(ctx, enc.Message, enc.Details.ReportablePayload, payload)
@@ -113,7 +113,7 @@ func decodeWrapper(ctx context.Context, enc *errorspb.EncodedWrapper) error {
 	}
 
 	// Do we have a wrapper decoder for this?
-	typeKey := TypeKey(enc.Details.ErrorTypeMark.FamilyName)
+	typeKey := TypeKey(enc.Details.GetErrorTypeMark().GetFamilyName())
 	if decoder, ok := decoders[typeKey]; ok {
 		// Yes, use it.
 		genErr := decoder(ctx, cause, enc.Message, enc.Details.ReportablePayload, payload)
