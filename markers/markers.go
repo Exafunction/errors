@@ -135,13 +135,13 @@ func getInterfaceType(context string, referenceInterface interface{}) reflect.Ty
 // Note: if any of the error types has been migrated from a previous
 // package location or a different type, ensure that
 // RegisterTypeMigration() was called prior to If().
-func If(err error, pred func(err error) (interface{}, bool)) (interface{}, bool) {
+func If[T any](err error, pred func(err error) (T, bool)) (T, bool) {
 	for c := err; c != nil; c = errbase.UnwrapOnce(c) {
 		if v, ok := pred(c); ok {
 			return v, ok
 		}
 	}
-	return nil, false
+	return *new(T), false
 }
 
 // IsAny is like Is except that multiple references are compared.

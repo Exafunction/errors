@@ -52,7 +52,7 @@ func HasInterface(err error, referenceInterface interface{}) bool {
 // Note: if any of the error types has been migrated from a previous
 // package location or a different type, ensure that
 // RegisterTypeMigration() was called prior to If().
-func If(err error, pred func(err error) (interface{}, bool)) (interface{}, bool) {
+func If[T any](err error, pred func(err error) (T, bool)) (T, bool) {
 	return markers.If(err, pred)
 }
 
