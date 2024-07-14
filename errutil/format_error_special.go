@@ -16,6 +16,7 @@ package errutil
 
 import (
 	"context"
+	"io"
 	"net"
 	"os"
 	"runtime"
@@ -34,6 +35,8 @@ func specialCaseFormat(err error, p errbase.Printer, isLeaf bool) (handled bool,
 	if isLeaf && markers.IsAny(err,
 		context.DeadlineExceeded,
 		context.Canceled,
+		io.EOF,
+		io.ErrUnexpectedEOF,
 		os.ErrInvalid,
 		os.ErrPermission,
 		os.ErrExist,
