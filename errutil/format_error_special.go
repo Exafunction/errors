@@ -25,6 +25,7 @@ import (
 	"github.com/cockroachdb/errors/errbase"
 	"github.com/cockroachdb/errors/markers"
 	"github.com/cockroachdb/redact"
+	"golang.org/x/net/http2"
 )
 
 func init() {
@@ -86,6 +87,12 @@ func specialCaseFormat(err error, p errbase.Printer, isLeaf bool) (handled bool,
 		p.Print(redact.Safe(v.SafeMessage()))
 		// It also short-cuts any further causes.
 		return true, nil
+	case interface{ As(any) bool }:
+		var streamErr *http2.StreamError
+		if v.As(&streamErr) {
+			p.Print(redact.Safe(streamErr.Error()))
+			return true, err
+		}
 	}
 	return false, nil
 }
